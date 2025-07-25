@@ -1,5 +1,6 @@
 //Academy
 #include<iostream>
+#include<fstream>
 using std::cin;
 using std::cout;
 using std::endl;
@@ -62,6 +63,10 @@ public:
 	}
 
 };
+std::ostream& operator<<(std::ostream& os, const Human& obj)
+{
+	return os << obj.get_last_name() << " " << obj.get_first_name() << " " << obj.get_age();
+}
 
 
 #define STUDENT_TAKE_PARAMETRS const std::string& speciality, const std::string& group, double rating, double attendance
@@ -209,9 +214,9 @@ public:
 	}
 };
 
-#define POLIMORFISM
+//#define POLIMORFISM
 
-//#define INHERITANCE
+#define INHERITANCE
 
 void main()
 {
@@ -248,11 +253,18 @@ void main()
 
 	};
 
+	std::ofstream fout("group.txt");
+
 	for (int i = 0; i < sizeof(group) / sizeof(group[0]); i++)
 	{
 		group[i]->info();
+
+		fout << *group[i] << endl;
+
 		cout << delimiter << endl;
 	}
+	fout.close();
+	system("notepad group.txt");
 
 	for (int i = 0; i < sizeof(group) / sizeof(group[0]); i++)
 	{
