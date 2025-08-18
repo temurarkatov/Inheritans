@@ -135,6 +135,12 @@ public:
 	}
 
 };
+std::ostream& operator<<(std::ostream& os, const Student& obj)
+{
+
+	return os << obj.get_speciality() << " " << obj.get_group() << " " << obj.get_rating() << "" << obj.get_attendance();
+}
+
 
 #define TEACHER_TAKE_PARAMETRS const std::string& speciality, int experience
 #define TEACHER_GIVE_PARAMETRS speciality,  experience
@@ -179,6 +185,13 @@ public:
 	}
 };
 
+std::ostream& operator<<(std::ostream& os, const Teacher& obj)
+{
+	return os << obj.get_specialety() << " " << obj.get_experience();
+}
+
+
+
 
 
 #define GRADUATE_TAKE_PARAMETERS const std::string& subject
@@ -216,9 +229,15 @@ public:
 	}
 };
 
-//#define POLIMORFISM
+std::ostream& operator<<(std::ostream& os, const Graduate& obj)
+{
+	return os << obj.get_subject();
+}
 
-#define INHERITANCE
+
+#define POLIMORFISM
+
+//#define INHERITANCE
 
 void main()
 {
@@ -261,7 +280,7 @@ void main()
 	{
 		group[i]->info();
 
-		cout << typeid(group[i]).name() << endl;
+		cout << typeid(*group[i]).name() << endl;
 
 		/*if (typeid(*group[i]) == tiped(Student))fout << dynamic_cast<Student*>(group[i]) << endl;
 		if (typeid(*group[i]) == tiped(Teacher))fout << dynamic_cast<Teacher*>(group[i]) << endl;
