@@ -179,6 +179,8 @@ public:
 	}
 };
 
+
+
 #define GRADUATE_TAKE_PARAMETERS const std::string& subject
 #define GRADUATE_GIVE_PARAMETERS subject
 
@@ -190,7 +192,7 @@ public:
 	{
 		return subject;
 	}
-	void set_subject(const std::string & subject)
+	void set_subject(const std::string& subject)
 	{
 		this->subject = subject;
 	}
@@ -259,6 +261,12 @@ void main()
 	{
 		group[i]->info();
 
+		cout << typeid(group[i]).name() << endl;
+
+		/*if (typeid(*group[i]) == tiped(Student))fout << dynamic_cast<Student*>(group[i]) << endl;
+		if (typeid(*group[i]) == tiped(Teacher))fout << dynamic_cast<Teacher*>(group[i]) << endl;
+		if (typeid(*group[i]) == tiped(Graduate))fout << dynamic_cast<Graduate*>(group[i]) << endl;
+		*/
 		fout << *group[i] << endl;
 
 		cout << delimiter << endl;
