@@ -1,23 +1,32 @@
 //Academy
 #include<iostream>
 #include<fstream>
+#include<string>
 using std::cin;
 using std::cout;
 using std::endl;
 
-#define delimiter "\n---------------------------------------------------------\n"
-
+#define delimiter "\n--------------------------------------------\n"
 
 #define HUMAN_TAKE_PARAMETERS const std::string& last_name, const std::string& first_name, int age
-#define HUMAN_GIVE_PARAMETERS last_name,  first_name,  age
+#define HUMAN_GIVE_PARAMETERS last_name, first_name, age
+
 
 
 class Human
 {
+	static const int TYPE_WIDTH = 12;
+	static const int NAME_WIDTH = 12;
+	static const int AGE_WIDTH = 5;
+	static int count;
 	std::string last_name;
 	std::string first_name;
 	int age;
 public:
+	static int get_count()
+	{
+		return count;
+	}
 	const std::string& get_last_name()const
 	{
 		return last_name;
@@ -43,48 +52,63 @@ public:
 		this->age = age;
 	}
 
-	//   Constructors :
-
+	//					Constructors:
 	Human(HUMAN_TAKE_PARAMETERS)
 	{
 		set_last_name(last_name);
 		set_first_name(first_name);
 		set_age(age);
+		count++;
 		cout << "HConstructor:\t" << this << endl;
-
 	}
 	virtual ~Human()
 	{
+		count--;
 		cout << "HDestructor:\t" << this << endl;
 	}
-	virtual void info()const
-	{
-		cout << last_name << " " << first_name << " " << age << endl;
-	}
 
+	//					Methods:
+	virtual std::ostream& info(std::ostream& os)const	//Base class
+	{
+		os.width(TYPE_WIDTH);
+		os << std::left;
+		os << std::string(strchr(typeid(*this).name(), ' ') + 1) + ":";
+		//return os << last_name << " " << first_name << " " << age;
+		os.width(NAME_WIDTH);
+		os << last_name;
+		os.width(NAME_WIDTH);
+		os << first_name;
+		os.width(AGE_WIDTH);
+		os << age;
+		return os;
+	}
 };
+
+int Human::count = 0;
+
 std::ostream& operator<<(std::ostream& os, const Human& obj)
 {
-	return os << obj.get_last_name() << " " << obj.get_first_name() << " " << obj.get_age();
+	return obj.info(os);
 }
 
-
-#define STUDENT_TAKE_PARAMETRS const std::string& speciality, const std::string& group, double rating, double attendance
-#define STUDENT_GIVE_PARAMETRS  speciality,  group,  rating, attendance
-
+#define STUDENT_TAKE_PARAMETERS const std::string& speciality, const std::string& group, double rating, double attendance
+#define STUDENT_GIVE_PARAMETERS speciality, group, rating, attendance
 
 class Student :public Human
 {
+	static const int SPECIALITY_WIDTH = 22;
+	static const int GROUP_WIDTH = 8;
+	static const int RAT_WIDTH = 8;
 	std::string speciality;
 	std::string group;
-	double rating;
-	double attendance;
+	double rating;			//успеваемость
+	double attendance;		//посещаемость
 public:
-	const std::string get_speciality()const
+	const std::string& get_speciality()const
 	{
 		return speciality;
 	}
-	const std::string get_group()const
+	const std::string& get_group()const
 	{
 		return group;
 	}
@@ -104,7 +128,6 @@ public:
 	{
 		this->group = group;
 	}
-
 	void set_rating(double rating)
 	{
 		this->rating = rating;
@@ -114,37 +137,48 @@ public:
 		this->attendance = attendance;
 	}
 
-
-	Student(HUMAN_TAKE_PARAMETERS, STUDENT_TAKE_PARAMETRS) :Human(HUMAN_GIVE_PARAMETERS)
+	//					Constructors:
+	Student(HUMAN_TAKE_PARAMETERS, STUDENT_TAKE_PARAMETERS) :Human(HUMAN_GIVE_PARAMETERS)
 	{
 		set_speciality(speciality);
 		set_group(group);
 		set_rating(rating);
 		set_attendance(attendance);
-		cout << "SConstructor" << this << endl;
+		cout << "SConstructor:\t" << this << endl;
 	}
 	~Student()
 	{
 		cout << "SDestructor:\t" << this << endl;
 	}
 
-	void info()const override
+	//					Methods:
+	std::ostream& info(std::ostream& os)const override//Derived class
 	{
-		Human::info();
-		cout << speciality << " " << group << " " << rating << " " << attendance << endl;
+		//return Human::info(os) << " " << speciality << " " << group << " " << rating << " " << attendance;
+		Human::info(os);
+		os.width(SPECIALITY_WIDTH);
+		os << speciality;
+		os.width(GROUP_WIDTH);
+		os << group;
+		os.width(RAT_WIDTH);
+		os << rating;
+		os.width(RAT_WIDTH);
+		os << attendance;
+		return os;
 	}
-
 };
 
-#define TEACHER_TAKE_PARAMETRS const std::string& speciality, int experience
-#define TEACHER_GIVE_PARAMETRS speciality,  experience
+#define TEACHER_TAKE_PARAMETERS const std::string& speciality, int experience
+#define TEACHER_GIVE_PARAMETERS speciality, experience
 
 class Teacher :public Human
 {
+	static const int SPECIALITY_WIDTH = 32;
+	static const int EXPERIENCE_WIDTH = 5;
 	std::string speciality;
 	int experience;
 public:
-	const std::string& get_specialety()const
+	const std::string& get_speciality()const
 	{
 		return speciality;
 	}
@@ -161,7 +195,8 @@ public:
 		this->experience = experience;
 	}
 
-	Teacher(HUMAN_TAKE_PARAMETERS, TEACHER_TAKE_PARAMETRS) :Human(HUMAN_GIVE_PARAMETERS)
+	//				Constructors:
+	Teacher(HUMAN_TAKE_PARAMETERS, TEACHER_TAKE_PARAMETERS) :Human(HUMAN_GIVE_PARAMETERS)
 	{
 		set_speciality(speciality);
 		set_experience(experience);
@@ -169,17 +204,19 @@ public:
 	}
 	~Teacher()
 	{
-		cout << "tDestructor:\t" << this << endl;
+		cout << "TDestructor:\t" << this << endl;
 	}
-	void info()const override
-
+	std::ostream& info(std::ostream& os)const override
 	{
-		Human::info();
-		cout << speciality << " " << experience << endl;
+		//return Human::info(os) << " " << speciality << " " << experience;
+		os.width(SPECIALITY_WIDTH);
+		os << speciality;
+		os.width(EXPERIENCE_WIDTH);
+		os << experience;
+		return os;
+
 	}
 };
-
-
 
 #define GRADUATE_TAKE_PARAMETERS const std::string& subject
 #define GRADUATE_GIVE_PARAMETERS subject
@@ -196,42 +233,38 @@ public:
 	{
 		this->subject = subject;
 	}
-	Graduate(HUMAN_TAKE_PARAMETERS, STUDENT_TAKE_PARAMETRS, GRADUATE_TAKE_PARAMETERS)
-		:Student(HUMAN_GIVE_PARAMETERS, STUDENT_GIVE_PARAMETRS)
+
+	//				Constructors:
+	Graduate(HUMAN_TAKE_PARAMETERS, STUDENT_TAKE_PARAMETERS, GRADUATE_TAKE_PARAMETERS)
+		:Student(HUMAN_GIVE_PARAMETERS, STUDENT_GIVE_PARAMETERS)
 	{
 		set_subject(subject);
 		cout << "GConstructor:\t" << this << endl;
 	}
-
 	~Graduate()
 	{
 		cout << "GDestructor:\t" << this << endl;
 	}
 
-	void info()const override
+	//				Methods:
+	std::ostream& info(std::ostream& os)const override
 	{
-		Student::info();
-		cout << get_subject() << endl;
-
+		return Student::info(os) << " " << get_subject();
 	}
 };
 
-//#define POLIMORFISM
-
-#define INHERITANCE
+//#define INHERITANCE
+#define POLYMORPHISM //(poly - много, morphis - форма)
 
 void main()
 {
 	setlocale(LC_ALL, "");
 
 #ifdef INHERITANCE
-
-
-
 	Human human("Montana", "Antonio", 25);
 	human.info();
 
-	Student student("Pincman", "Jessi", 22, "Chemistry", "WW_220", 95, 98);
+	Student student("Pinkman", "Jessie", 22, "Chemistry", "WW_220", 95, 98);
 	student.info();
 
 	Teacher teacher("White", "Walter", 50, "Chemistry", 25);
@@ -239,38 +272,44 @@ void main()
 
 	Graduate graduate("Schreder", "Hank", 40, "Criminalistic", "OBN", 40, 50, "How to catch Heisenberg");
 	graduate.info();
-
-
 #endif // INHERITANCE
 
+#ifdef POLYMORPHISM
+	/*
+----------------------------
+//Compile-time Polymorphism
+//Ad-Hoc Polymorphism
+//Inclusion Polymorphism (Runtime Polymorphism);
 
+		1. Base-class pointers:
+			Generlaisation (Обобщение);
+			Upcast - преобразование дочернего объекта в базовый тип;
+		2. virtual functions.
+		   Виртуальным называется метод, который может быть переопределен в дочернем классе.
+		   _vfptr (Virtual Functions Pointers) - таблица указателей на виртуальные функции.
+	----------------------------
+	*/
 
 	Human* group[] =
 	{
-		new Student("Pincman", "Jessi", 22, "Chemistry", "WW_220", 95, 98),
+		new Student("Pinkman", "Jessie", 22, "Chemistry", "WW_220", 95, 98),
 		new Teacher("White", "Walter", 50, "Chemistry", 25),
 		new Graduate("Schreder", "Hank", 40, "Criminalistic", "OBN", 40, 50, "How to catch Heisenberg"),
-		new Student("Vercetty", "Tomy", 30, "Theft", "Vice", 98, 99),
+		new Student("Vercetty", "Tommy", 30, "Theft", "Vice", 98, 99),
 		new Teacher("Diaz", "Ricardo", 50, "Weapons distribution", 20)
-
 	};
 
 	std::ofstream fout("group.txt");
-
 	for (int i = 0; i < sizeof(group) / sizeof(group[0]); i++)
 	{
-		group[i]->info();
-
-		cout << typeid(group[i]).name() << endl;
-
-		/*if (typeid(*group[i]) == tiped(Student))fout << dynamic_cast<Student*>(group[i]) << endl;
-		if (typeid(*group[i]) == tiped(Teacher))fout << dynamic_cast<Teacher*>(group[i]) << endl;
-		if (typeid(*group[i]) == tiped(Graduate))fout << dynamic_cast<Graduate*>(group[i]) << endl;
-		*/
+		group[i]->info(cout);
 		fout << *group[i] << endl;
-
 		cout << delimiter << endl;
 	}
+
+	cout << "Количество объектов: " << group[0]->get_count() << endl;
+	cout << "Количество объектов: " << Human::get_count() << endl;
+
 	fout.close();
 	system("notepad group.txt");
 
@@ -279,6 +318,7 @@ void main()
 		delete group[i];
 		cout << delimiter << endl;
 	}
+#endif // POLYMORPHISM
 
 
 
