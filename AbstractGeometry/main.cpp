@@ -370,6 +370,7 @@ void main()
 	cout << "Периметр квадрата: " << square.get_perimeter() << endl;
 	square.draw();
 	cout << "\n-----------------------------\n" << endl;*/
+	//
 	square.info();
 
 	Geometry::Rectangle rect(150, 100, 150, 100, 2, Geometry::Color::Orange);
