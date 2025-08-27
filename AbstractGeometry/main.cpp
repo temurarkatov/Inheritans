@@ -1,4 +1,5 @@
-﻿#include<iostream>
+﻿#define _USE_MATH_DEFINES
+#include<iostream>
 #include<Windows.h>
 using namespace std;
 
@@ -9,7 +10,7 @@ namespace Geometry
 		Red = 0x000000FF,
 		Green = 0x0000FF00,
 		Blue = 0x00FF0000,
-		Ýellow = 0x0000FFFF,
+		Yellow = 0x0000FFFF,
 		Orange = 0x0000A5FF,
 		White = 0x00FFFFFF,
 		SomeColor
@@ -30,9 +31,9 @@ namespace Geometry
 		static const int MAX_START_X = 1000;
 		static const int MAX_START_Y = 600;
 		static const int MIN_LINE_WIDTH = 1;
-		static const int MAX_LINE_WIDTH = 16;
+		static const int MAX_LINE_WIDTH = 32;
 		static const int MIN_SIZE = 32;
-		static const int MAX_SIZE = 768;
+		static const int MAX_SIZE = 512;
 		
 		Shape(SHAPE_TAKE_PARAMETERS) :color(color)
 		{
@@ -60,6 +61,15 @@ namespace Geometry
 				line_width < MIN_LINE_WIDTH ? MIN_LINE_WIDTH :
 				line_width > MAX_LINE_WIDTH ? MAX_LINE_WIDTH :
 				line_width;
+		}
+
+		int filter_size(int size)const
+		{
+			return
+				size < MIN_SIZE ? MIN_SIZE :
+				size > MAX_SIZE ? MAX_SIZE :
+				size;
+
 		}
 		int get_start_x()const
 		{
@@ -130,6 +140,7 @@ namespace Geometry
 	//		Shape::info();
 	//	}
 	//};
+
 	class Rectangle : public Shape
 	{
 		double width;
@@ -142,13 +153,13 @@ namespace Geometry
 		}
 		void set_width(double width)
 		{
-			this->width = width;
+			this->width = filter_size(width);
 
 
 		}
 		void set_height(double height)
 		{
-			this->height = height;
+			this->height = filter_size(height);
 		}
 		double get_width()const
 		{
@@ -162,7 +173,7 @@ namespace Geometry
 		{
 			return width * height;
 		}
-		double get_perimeter()const
+		double get_perimeter()const override
 		{
 			return (width + height) * 2;
 		}
@@ -198,6 +209,150 @@ namespace Geometry
 	public:
 		Square(int side, SHAPE_TAKE_PARAMETERS) :Rectangle(side, side, SHAPE_GIVE_PARAMETERS){}
 	};
+	class Circle :public Shape
+	{
+		double radius;
+	public:
+		Circle(double radius, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
+		{
+			set_radius(radius);
+		}
+		void set_radius(double radius)
+		{
+			this->radius = filter_size(radius);
+		}
+		double get_radius()const
+		{
+			return radius;
+		}
+		double get_diameter()const
+		{
+			return 2 * radius;
+		}
+		double get_area()const override
+		{
+			return M_PI * radius * radius;
+		}
+		double get_perimeter()const override
+		{
+			return M_PI * get_diameter();
+		}
+		void draw()const override
+		{
+			HWND hwnd = GetConsoleWindow();
+
+			HDC hdc = GetDC(hwnd);
+
+			HPEN hPen = CreatePen(PS_SOLID, line_width, color);
+
+			HBRUSH hBrush = CreateSolidBrush(color);
+
+
+			SelectObject(hdc, hPen);
+			SelectObject(hdc, hBrush);
+
+
+			::Ellipse(hdc, start_x, start_y, start_x + get_diameter(), start_y + get_diameter());
+
+
+			DeleteObject(hBrush);
+			DeleteObject(hPen);
+			ReleaseDC(hwnd, hdc);
+
+		}
+	};
+
+	class Triangle :public Shape
+	{
+	public:
+
+		Triangle(SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS){}
+
+		virtual double get_height()const = 0;
+	};
+
+	class EquilateralTriangle :public Triangle
+
+	{
+
+		double side;
+
+	public:
+
+		EquilateralTriangle(double side, SHAPE_TAKE_PARAMETERS) :Triangle(SHAPE_GIVE_PARAMETERS)
+		{
+
+			set_side(side);
+		}
+		void set_side(double side)
+
+		{
+
+			this->side = filter_size(side);
+		}
+
+		double get_side()const
+		{
+			return side;
+		}
+
+		double get_height()const override
+
+		{
+
+			return sqrt(pow(side, 2) - pow(side / 2, 2));
+
+		}
+
+		double get_area()const override
+
+		{
+
+			return side * get_height() / 2;
+
+		}
+
+		double get_perimeter()const override
+
+		{
+
+			return 3 * side;
+
+		}
+
+		void draw()const override
+
+		{
+
+			HWND hwnd = GetConsoleWindow();
+
+			HDC hdc = GetDC(hwnd);
+
+			HPEN hPen = CreatePen(PS_SOLID, line_width, color);
+
+			HBRUSH hBrush = CreateSolidBrush(color);
+
+
+			SelectObject(hdc, hPen);
+			SelectObject(hdc, hBrush);
+
+			const POINT vertices[] =
+
+			{
+
+				{ start_x, start_y + get_height() },
+				{ start_x + side, start_y + get_height() },
+				{ start_x + side / 2, start_y }
+			};
+
+			::Polygon(hdc, vertices, 3);
+
+			DeleteObject(hBrush);
+			DeleteObject(hPen);
+			ReleaseDC(hwnd, hdc);
+
+		}
+	};
 }
 
 
@@ -217,8 +372,15 @@ void main()
 	cout << "\n-----------------------------\n" << endl;*/
 	square.info();
 
-	Geometry::Rectangle rect(150, 10, 550, 100, 2, Geometry::Color::Orange);
+	Geometry::Rectangle rect(150, 100, 150, 100, 2, Geometry::Color::Orange);
 	rect.info();
+
+	Geometry::Circle circle(50, 800, 200, 1, Geometry::Color::Yellow);
+	circle.info();
+
+	Geometry::EquilateralTriangle e_triangle(50, 550, 350, 48, Geometry::Color::Green);
+
+	e_triangle.info();
 
 	while (true)
 	{
